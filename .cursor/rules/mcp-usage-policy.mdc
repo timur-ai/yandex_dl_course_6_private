@@ -1,0 +1,50 @@
+---
+alwaysApply: true
+---
+## MCP Usage Policy
+
+This policy standardizes how Model Context Protocol (MCP) servers are used in this repository and in associated automation.
+
+### Approved Servers
+- context7: Primary source for library, framework, and API documentation.
+- Additional servers may be allowed on a case‑by‑case basis after review.
+
+### Usage Guidelines
+- Use context7 exclusively for technical references, API clarifications, and examples.
+- Do not query, configure, or auto‑fallback to any other MCP servers.
+- Query MCP when:
+  - You need authoritative docs or recent changes for a dependency
+  - You need examples or best practices from an official source
+  - Local repository context is insufficient to proceed accurately
+- Do not rely on MCP for secrets, credentials, or proprietary content.
+- Cache and cite key facts retrieved via MCP in code comments or docs when decisions depend on them. Include version and retrieval date when relevant.
+
+### Query Quality
+- Ask focused, unambiguous questions (one topic per query).
+- Include versions (e.g., "PyTorch 2.3+", "Python 3.12+") when relevant.
+- Prefer official docs over blogs or third‑party sources.
+
+### Reproducibility
+- When MCP output informs implementation choices, record:
+  - Source server and doc URL or identifier
+  - Library/framework version
+  - Short summary of the guidance followed
+
+### Security & Compliance
+- Treat MCP output as untrusted until verified against official sources.
+- Do not paste secrets into queries. Redact sensitive details.
+- Respect licenses and attribution requirements of cited materials.
+
+### Automation Integration
+- Tools and scripts invoking MCP must:
+  - Fail closed when the server is unavailable and provide a clear message
+  - Support offline mode with degraded behavior where feasible
+  - Log queries at debug level without sensitive data
+  - Deduplicate repeated queries via simple caching where possible
+
+### Review Checklist
+- Is the selected MCP server appropriate and approved?
+- Are versions and sources cited where they affect implementation?
+- Is sensitive information excluded from queries and logs?
+
+

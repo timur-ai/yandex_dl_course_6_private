@@ -1,0 +1,52 @@
+---
+alwaysApply: true
+---
+## Python Engineering Standards
+
+Repository‑wide standards for Python code, packaging, tooling, and CI.
+
+### Runtime & Versions
+- Define supported Python versions only in `pyproject.toml` and the CI matrix (single source of truth).
+- Do not duplicate runtime constraints in rules or docs; keep them enforced in `pyproject.toml` and CI.
+
+### Environment & Packaging (mandatory uv)
+- Use `uv` exclusively for dependency management and execution:
+  - Create and sync: `uv sync --frozen` (CI) or `uv sync` (local).
+  - Run: `uv run <module or script>` (e.g., `uv run pytest`).
+  - Add/remove deps: `uv add <pkg>`, `uv remove <pkg>`; never edit lockfiles by hand.
+- `pyproject.toml` and `uv.lock` are the sources of truth for dependencies.
+- Do not commit virtual environments; do not use `pip`, `conda`, or `poetry` in this repo.
+
+### Style, Typing, and Linting (mandatory ruff)
+- Enforce `ruff` with zero warnings:
+  - Local: `uv run ruff check --fix --unsafe-fixes .`
+  - CI: fail on any warning or error.
+- Line length 88, import order, and code style follow ruff/PEP 8.
+- Use strict type hints across the codebase; enable `from __future__ import annotations`.
+- Prefer small functions (≤25 lines when practical) and descriptive names.
+
+### Testing
+- Use `pytest` for unit and integration tests.
+- Always run tests via `uv run pytest`.
+- Keep tests deterministic; seed RNGs where relevant.
+
+### Tooling Commands (reference)
+- Install tooling: `uv add --dev ruff pytest mypy` (as needed).
+- Lint: `uv run ruff check --fix --unsafe-fixes .`
+- Type check (if enabled): `uv run mypy .`
+- Test: `uv run pytest -q`
+
+### CI Requirements
+- Use `uv` in all CI steps; no `pip install`.
+- Cache uv and `.venv` appropriately; use `uv sync --frozen` to ensure lock fidelity.
+- Run linting and tests as separate steps. Fail fast on lint violations.
+
+### Documentation & Language Policy
+- All code, comments, docstrings, and user‑facing text must be in English.
+- Use Google‑style docstrings for public APIs.
+
+### Prohibited
+- Non‑uv dependency workflows; manual `pip install` or `requirements.txt`.
+- Mixed or duplicate version constraints outside `pyproject.toml`.
+- Ignoring ruff warnings; code must be clean with zero lint issues.
+

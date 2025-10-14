@@ -1,0 +1,38 @@
+---
+alwaysApply: true
+---
+## Language Policy for Repository Content
+
+This policy defines language requirements for all artifacts in this repository.
+
+### Scope
+- Source code, tests, notebooks, examples
+- Comments, docstrings, READMEs, and documentation
+- Logs, error messages, CLI output strings
+- File/folder names and configuration keys
+- Commit messages, PR/issue titles and descriptions
+
+Note: This policy governs repository content and automation output. It does not constrain interactive chat responses unless explicitly requested.
+
+### Requirements
+- Use English only (American English preferred) across the entire scope.
+- Use clear, precise technical terminology; avoid slang and colloquialisms.
+- Use consistent terminology for concepts and components across files.
+- Write user‑facing text (errors, warnings, help) in plain, actionable English.
+- Use ISO‑8601 dates (YYYY‑MM‑DD) and UTC timestamps where applicable.
+- Avoid mixed‑language content, transliteration, or Cyrillic characters.
+
+### Prohibited
+- Non‑English words in code, docs, or commit messages
+- Mixed language sentences or transliterated technical terms
+
+### Review Checklist
+- All added/edited text is in English and consistent in terminology
+- Identifiers and filenames use English words and follow PEP 8 conventions
+- User‑facing messages are clear, concise, and actionable
+- No Cyrillic or mixed‑language fragments remain
+
+### Acceptance Criteria
+Pull requests that violate this policy must receive changes‑requested until they comply. Automated checks may be added to enforce key aspects (e.g., filename linting and commit message linting).
+
+

@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+---
+Do not handle exceptions, do not add unnecessary checks, and do not write helper functions.

@@ -1,0 +1,101 @@
+---
+alwaysApply: true
+---
+## PyTorch Engineering Standards
+
+Production‑grade standards for PyTorch code in this repository.
+
+These rules complement `python-engineering-standards.md` and focus on PyTorch‑specific guidance. Follow the Python rules for language‑level conventions, packaging, environment management (uv), and linting/formatting (ruff).
+
+### Runtime Targets
+- PyTorch: follow constraints in `pyproject.toml`/`uv.lock` (source of truth); enable CUDA when GPUs are available.
+
+### Version Policy
+- Do not hardcode versions in rules; use `pyproject.toml` and CI as the single source of truth for supported runtimes.
+- Define, test, and periodically review supported runtimes via `pyproject.toml` and CI. Avoid duplicating runtime details in rules or docs.
+
+### Project Structure
+- Separate model definition, data pipeline, training, evaluation, and utils.
+- Keep files under 300 lines when practical; break down large modules.
+- Store experiment configs in YAML and version them.
+- Prefer Hydra or OmegaConf for configuration management.
+
+### Style & Typing
+- Follow `python-engineering-standards.mdc` for naming, line length, docstrings, and type‑checking requirements.
+- Use strict type hints for tensors and modules; document tensor shapes, dtypes, and device expectations in docstrings.
+- Functions should be short and focused (≤25 lines when practical). Extract helpers for complex steps.
+
+### Determinism
+```python
+import random
+import numpy as np
+import torch
+
+def seed_everything(seed: int = 42) -> None:
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+```
+
+### Model & Config
+- Inherit all models from `nn.Module` and implement `forward`.
+- Use `@dataclass(frozen=True, slots=True)` for immutable configs.
+- Document tensor shapes in docstrings.
+- Use Google‑style docstrings for public APIs; include type hints in examples.
+ - Prefer explicit device and dtype handling. Expose `device` and `dtype` in constructors where appropriate.
+
+### Data Pipeline
+- Implement custom `Dataset`/`DataLoader` when needed.
+- Normalize text with `unicodedata.normalize("NFKC", text.lower().strip())`.
+- Configure `DataLoader` with `pin_memory=True` and `num_workers>0` for GPU.
+ - Validate dataset lengths and item shapes; raise clear `ValueError` on violations.
+
+### Training
+- Prefer explicit training loops over opaque frameworks.
+- Use mixed precision with `torch.cuda.amp` when on GPU.
+- Support gradient accumulation for large effective batch sizes.
+- Log metrics periodically by steps, not only by epochs.
+- Validate shapes and dtypes in critical steps; fail fast with clear messages.
+ - Apply gradient clipping when appropriate (`torch.nn.utils.clip_grad_norm_`).
+ - Save checkpoints atomically and include optimizer/scheduler state.
+ - Track `global_step` and seed in checkpoints for reproducibility.
+
+### Evaluation
+- Report accuracy, macro‑F1, precision, and recall as a minimum.
+- Use `sklearn.metrics`; include class‑wise reports when relevant.
+ - Set the model to `eval()` and guard with `torch.inference_mode()` for pure inference.
+
+### Performance
+- Consider `torch.compile` for speedups on supported backends.
+- Use gradient checkpointing for large models where memory‑bound.
+- Profile with `torch.profiler` before optimizing.
+ - Prefer fused ops and batched tensorized code over Python loops.
+ 
+### Modern Features
+- Consider `torch.export` for deployment/export pipelines when applicable.
+- Use `torch.func` utilities where functional transforms improve clarity.
+- Use TorchScript only when needed for production constraints.
+
+### Error Handling & Logging
+- Use `logging` module; log warnings for recoverable issues, errors otherwise.
+- Wrap I/O with `try/except` and provide actionable error messages.
+- Avoid `.data`; use `.detach()` when needed.
+ - Check for NaN/Inf in losses/gradients and fail fast with actionable logs.
+
+### Testing
+- Use `pytest`. Add unit tests for utilities and smoke tests for models.
+- Test forward/backward on small tensors; check determinism under fixed seed.
+- Run tests on CPU; optionally on GPU in CI when available.
+ - Include a short on‑device inference test for exported/compiled models when applicable.
+
+### Prohibited
+- Global mutable state; prefer dependency injection.
+- Hardcoded paths; use `pathlib.Path` and config files.
+- Magic numbers; use constants or config fields.
+- Deeply nested control flow (>3 levels); extract helper functions.
+- Mutable default arguments.
+
+
